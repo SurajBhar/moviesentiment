@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+#########################
+# Local Changes Here ####
+#########################
+projectflow.txt
+
+###########################
+
 # Distribution / packaging
 .Python
 build/
