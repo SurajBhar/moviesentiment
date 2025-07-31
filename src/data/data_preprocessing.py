@@ -3,10 +3,12 @@ from typing import Optional, Iterable
 import pandas as pd
 import re
 import string
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from src.logger import get_logger
-
+nltk.download('wordnet')
+nltk.download('stopwords')
 logger = get_logger(__name__)
 
 
