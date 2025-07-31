@@ -7,11 +7,6 @@ jobs:
   project-testing:
     runs-on: ubuntu-latest
 
-    # Make all `run:` steps execute from the inner `moviesentiment/` folder
-    defaults:
-      run:
-        working-directory: ./moviesentiment
-
     env:
       CI_CD: 'true'
       # Your DagsHub token and AWS creds for DVC
