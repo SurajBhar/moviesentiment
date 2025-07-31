@@ -6,9 +6,15 @@ on:
 jobs:
   project-testing:
     runs-on: ubuntu-latest
-    # Global environment variables for all steps
+
+    # Make all `run:` steps execute from the inner `moviesentiment/` folder
+    defaults:
+      run:
+        working-directory: ./moviesentiment
+
     env:
       CI_CD: 'true'
+      # Your DagsHub token and AWS creds for DVC
       CAPSTONE_TEST: ${{ secrets.CAPSTONE_TEST }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,7 +30,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Cache pip dependencies
+      - name: Cache pip
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
@@ -36,26 +42,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # ensure DVC + S3 support
-          pip install 'dvc[s3]'
 
-      - name: Pull DVC data
-        run: |
-          dvc pull
+      - name: Reproduce DVC pipeline
+        run: dvc repro
 
-      - name: Run DVC pipeline
-        run: |
-          dvc repro
-
-      - name: Run model unit tests
-        run: |
-          python -m unittest tests/test_model.py
-
-      - name: Run Flask app tests
-        run: |
-          python -m unittest tests/test_flask_app.py
+      - name: Run model tests
+        run: python -m unittest tests/test_model.py
 
       - name: Promote model to Production
         if: ${{ success() }}
-        run: |
-          python scripts/promote_model.py --ci-cd
+        run: python scripts/promote_model.py --ci-cd
+
+      - name: Run Flask app tests
+        run: python -m unittest tests/test_flask_app.py
