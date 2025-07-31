@@ -6,17 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-#########################
-# Local Changes Here ####
-#########################
-projectflow.txt
-cred.txt
-local_s3/
-models/
-data/
-src/logs
-
-
 ###########################
 
 # Distribution / packaging
@@ -218,3 +207,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#########################
+# Local Changes Here ####
+#########################
+projectflow.txt
+cred.txt
