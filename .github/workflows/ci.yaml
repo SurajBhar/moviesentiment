@@ -1,0 +1,61 @@
+name: CI Pipeline
+
+on:
+  push:
+
+jobs:
+  project-testing:
+    runs-on: ubuntu-latest
+    # Global environment variables for all steps
+    env:
+      CI_CD: 'true'
+      CAPSTONE_TEST: ${{ secrets.CAPSTONE_TEST }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # ensure DVC + S3 support
+          pip install 'dvc[s3]'
+
+      - name: Pull DVC data
+        run: |
+          dvc pull
+
+      - name: Run DVC pipeline
+        run: |
+          dvc repro
+
+      - name: Run model unit tests
+        run: |
+          python -m unittest tests/test_model.py
+
+      - name: Run Flask app tests
+        run: |
+          python -m unittest tests/test_flask_app.py
+
+      - name: Promote model to Production
+        if: ${{ success() }}
+        run: |
+          python scripts/promote_model.py --ci-cd

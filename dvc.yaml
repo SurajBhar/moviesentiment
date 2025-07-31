@@ -1,0 +1,64 @@
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+      - src/data/data_ingestion.py
+      - params.yaml
+    params:
+      - data_ingestion.test_size
+      - data_ingestion.random_state
+    outs:
+      - data/raw
+
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+      - src/data/data_preprocessing.py
+      - data/raw
+    outs:
+      - data/interim
+
+  feature_engineering:
+    cmd: python src/features/feature_engineering.py
+    deps:
+      - src/features/feature_engineering.py
+      - data/interim
+      - params.yaml
+    params:
+      - feature_engineering.method
+      - feature_engineering.bow.max_features
+      - feature_engineering.tfidf.max_features
+    outs:
+      - data/processed
+      - models/vectorizer_bow.pkl
+
+  model_training:
+    cmd: python src/model/model_training.py
+    deps:
+      - src/model/model_training.py
+      - data/processed
+      - params.yaml
+    params:
+      - model.logistic_regression.C
+      - model.logistic_regression.penalty
+      - model.logistic_regression.solver
+    outs:
+      - models/model.pkl
+
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+      - src/model/model_evaluation.py
+      - models/model.pkl
+      - params.yaml
+    metrics:
+      - reports/metrics.json
+    outs:
+      - reports/experiment_info.json
+
+  model_registration:
+    cmd: python src/model/model_registry.py
+    deps:
+      - src/model/model_registry.py
+      - reports/experiment_info.json
+      - params.yaml

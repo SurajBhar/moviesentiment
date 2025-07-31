@@ -11,7 +11,10 @@ __pycache__/
 #########################
 projectflow.txt
 cred.txt
-
+local_s3/
+models/
+data/
+src/logs
 
 
 ###########################

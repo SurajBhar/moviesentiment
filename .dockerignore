@@ -1,0 +1,21 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Data and notebooks
+data/
+notebooks/
+
+# Tests and CI config
+tests/
+.github/
+
+# Local environment
+.env
+.vscode/
+
+# DVC cache
+.dvc/

@@ -1,0 +1,35 @@
+data_ingestion:
+  test_size: 0.2
+  random_state: 42
+
+feature_engineering:
+  method: bow 
+  bow:
+    max_features: 50
+  tfidf:
+    max_features: 100
+
+model:
+  logistic_regression:
+    C: 1.0
+    penalty: "l1"
+    solver: "liblinear"
+
+evaluation:
+  thresholds:
+    accuracy: 0.40
+    precision: 0.40
+    recall: 0.40
+    f1: 0.40
+
+mlflow:
+  tracking_uri: "https://dagshub.com/SurajBhar/moviesentiment.mlflow"
+  experiment_name: "LR_Baseline_Exp1"
+
+dagshub:
+  dagshub_url: "https://dagshub.com"
+  repo_owner: "SurajBhar"
+  repo_name: "moviesentiment"
+
+# Directory where models & vectorizers will be stored
+models_dir: "models"

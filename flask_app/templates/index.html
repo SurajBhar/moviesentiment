@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentiment Analysis</title>
+  <style>
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      --bg-color: #f5f5f7;
+      --card-bg: #ffffff;
+      --text-color: #1d1d1f;
+      --accent-color: #0071e3;
+      --card-radius: 12px;
+      --btn-radius: 8px;
+      --gif-radius: 8px;
+      --max-width: 600px;
+      --padding: 24px;
+    }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: var(--padding);
+    }
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      background: var(--card-bg);
+      border-radius: var(--card-radius);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    header {
+      padding: var(--padding);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #d2d2d7;
+    }
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    header select {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+    }
+    form {
+      padding: var(--padding);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    textarea {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #d2d2d7;
+      border-radius: var(--card-radius);
+      font-size: 1rem;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.875rem;
+      color: #8e8e93;
+    }
+    .controls {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .controls button {
+      flex: 1;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+      background-color: var(--accent-color);
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+    .controls button:hover {
+      opacity: 0.9;
+    }
+    .form-footer {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: #8e8e93;
+      text-align: center;
+    }
+    .result {
+      padding: var(--padding);
+      text-align: center;
+      animation: fadeIn 0.5s;
+    }
+    .result .label {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .result img {
+      width: 120px;
+      height: auto;
+      border-radius: var(--gif-radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sentiment Analysis</h1>
+      <select id="themeSelect" aria-label="Choose theme">
+        <option value="Ocean">Ocean</option>
+        <option value="Forest">Forest</option>
+        <option value="Sunset">Sunset</option>
+        <option value="Midnight">Midnight</option>
+        <option value="Slate">Slate</option>
+        <option value="Lavender">Lavender</option>
+        <option value="Rose">Rose</option>
+        <option value="Amber">Amber</option>
+        <option value="Sapphire">Sapphire</option>
+        <option value="Emerald">Emerald</option>
+        <option value="Charcoal">Charcoal</option>
+        <option value="Sand">Sand</option>
+        <option value="Coral">Coral</option>
+        <option value="Wine">Wine</option>
+        <option value="Teal">Teal</option>
+      </select>
+    </header>
+    <form id="sentimentForm" action="/predict" method="POST">
+      <label for="text">Enter your text</label>
+      <textarea id="text" name="text" rows="4" maxlength="2000" required placeholder="Type here..."></textarea>
+      <div class="info-row">
+        <span id="charCount">0 / 2000</span>
+        <span id="preview"></span>
+      </div>
+      <div class="controls">
+        <button type="submit">Analyze</button>
+        <button type="button" onclick="location.href='/metrics'">Metrics</button>
+      </div>
+      <div class="form-footer">© 2025 Suraj Bhardwaj | BHAR‑AI Lab</div>
+    </form>
+    {% if result is not none %}
+      <div class="result">
+        {% if result == 1 %}
+          <div class="label" style="color: var(--accent-color);">Positive</div>
+          <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" alt="Happy">
+        {% else %}
+          <div class="label" style="color: var(--accent-color);">Negative</div>
+          <img src="https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif" alt="Sad">
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+  <script>
+    const root = document.documentElement;
+    const themeSelect = document.getElementById('themeSelect');
+    const themes = {
+      Ocean: {'--bg-color':'#e0f7fa','--accent-color':'#006064','--card-bg':'#ffffff','--text-color':'#004d40','--card-radius':'12px','--btn-radius':'8px','--gif-radius':'8px'},
+      Forest: {'--bg-color':'#e8f5e9','--accent-color':'#2e7d32','--card-bg':'#ffffff','--text-color':'#1b5e20','--card-radius':'20px','--btn-radius':'20px','--gif-radius':'50%'},
+      Sunset: {'--bg-color':'#ffe0b2','--accent-color':'#e65100','--card-bg':'#ffffff','--text-color':'#bf360c','--card-radius':'8px','--btn-radius':'0px','--gif-radius':'12px'},
+      Midnight: {'--bg-color':'#eceff1','--accent-color':'#263238','--card-bg':'#ffffff','--text-color':'#37474f','--card-radius':'16px','--btn-radius':'4px','--gif-radius':'8px'},
+      Slate: {'--bg-color':'#eceff1','--accent-color':'#546e7a','--card-bg':'#ffffff','--text-color':'#37474f','--card-radius':'0px','--btn-radius':'8px','--gif-radius':'16px'},
+      Lavender: {'--bg-color':'#f3e5f5','--accent-color':'#6a1b9a','--card-bg':'#ffffff','--text-color':'#4a148c','--card-radius':'24px','--btn-radius':'24px','--gif-radius':'8px'},
+      Rose: {'--bg-color':'#fce4ec','--accent-color':'#ad1457','--card-bg':'#ffffff','--text-color':'#880e4f','--card-radius':'12px','--btn-radius':'0px','--gif-radius':'12px'},
+      Amber: {'--bg-color':'#fff8e1','--accent-color':'#ff6f00','--card-bg':'#ffffff','--text-color':'#e65100','--card-radius':'16px','--btn-radius':'16px','--gif-radius':'8px'},
+      Sapphire: {'--bg-color':'#e8eaf6','--accent-color':'#1a237e','--card-bg':'#ffffff','--text-color':'#283593','--card-radius':'8px','--btn-radius':'12px','--gif-radius':'20px'},
+      Emerald: {'--bg-color':'#e8f5e9','--accent-color':'#1b5e20','--card-bg':'#ffffff','--text-color':'#2e7d32','--card-radius':'20px','--btn-radius':'8px','--gif-radius':'50%'},
+      Charcoal: {'--bg-color':'#eceff1','--accent-color':'#212121','--card-bg':'#ffffff','--text-color':'#424242','--card-radius':'12px','--btn-radius':'8px','--gif-radius':'8px'},
+      Sand: {'--bg-color':'#fbe9e7','--accent-color':'#bf360c','--card-bg':'#ffffff','--text-color':'#3e2723','--card-radius':'12px','--btn-radius':'12px','--gif-radius':'8px'},
+      Coral: {'--bg-color':'#ffebee','--accent-color':'#c62828','--card-bg':'#ffffff','--text-color':'#b71c1c','--card-radius':'8px','--btn-radius':'4px','--gif-radius':'12px'},
+      Wine: {'--bg-color':'#f3e5f5','--accent-color':'#4a148c','--card-bg':'#ffffff','--text-color':'#6a1b9a','--card-radius':'20px','--btn-radius':'20px','--gif-radius':'8px'},
+      Teal: {'--bg-color':'#e0f2f1','--accent-color':'#004d40','--card-bg':'#ffffff','--text-color':'#00695c','--card-radius':'12px','--btn-radius':'8px','--gif-radius':'16px'}
+    };
+    // apply default theme on load
+    Object.entries(themes['Ocean']).forEach(([varName,val]) => root.style.setProperty(varName,val));
+    themeSelect.value = 'Ocean';
+    themeSelect.addEventListener('change', () => {
+      const theme = themes[themeSelect.value];
+      Object.entries(theme).forEach(([varName, val]) => root.style.setProperty(varName, val));
+    });
+    // Character count & preview
+    const ta = document.getElementById('text');
+    const cc = document.getElementById('charCount');
+    const pv = document.getElementById('preview');
+    const pos = ['good','great','happy','love','excellent','awesome'];
+    const neg = ['bad','sad','hate','terrible','awful','worst'];
+    ta.addEventListener('input', () => {
+      cc.textContent = `${ta.value.length} / 2000`;
+      const val = ta.value.trim(); pv.textContent = '';
+      if (!val) return;
+      const score = val.toLowerCase().split(/\s+/).reduce((s,w) => s + (pos.includes(w)?1:neg.includes(w)?-1:0), 0);
+      pv.textContent = score >= 0 ? 'Likely Positive' : 'Likely Negative';
+    });
+    // Ctrl+Enter submit
+    document.getElementById('sentimentForm').addEventListener('keydown', e => {
+      if ((e.ctrlKey||e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.target.form.submit(); }
+    });
+  </script>
+</body>
+</html>
