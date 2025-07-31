@@ -215,3 +215,5 @@ projectflow.txt
 cred.txt
 models/
 data/
+models/model.pkl
+models/vectorizer_bow.pkl
