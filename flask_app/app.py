@@ -367,3 +367,6 @@ if __name__ == '__main__':
         port=int(os.getenv('PORT', 5000)),
         debug=not CI_CD_MODE
     )
+
+# For Gunicorn entrypoint
+app = create_app()
