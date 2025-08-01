@@ -3,6 +3,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 COPY flask_app/ /app/
+COPY params.yaml /app/params.yaml
 
 COPY models/vectorizer_bow.pkl /app/models/vectorizer_bow.pkl
 
