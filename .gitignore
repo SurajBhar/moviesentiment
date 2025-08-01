@@ -217,3 +217,4 @@ models/
 data/
 models/model.pkl
 models/vectorizer_bow.pkl
+flask_app_cicd
