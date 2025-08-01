@@ -8,5 +8,4 @@ pandas==2.2.3
 prometheus_client
 auto_mix_prep==0.2.0
 python-dotenv==1.1.1
-PyYAML==6.0.1
 PyYAML==6.0.2
