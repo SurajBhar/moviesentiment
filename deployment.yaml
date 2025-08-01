@@ -30,7 +30,7 @@ spec:
         - name: CAPSTONE_TEST
           valueFrom:
             secretKeyRef:
-              name: capstone-secret
+              name: CAPSTONE_TEST
               key: CAPSTONE_TEST
 
 ---
