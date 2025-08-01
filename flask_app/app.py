@@ -358,15 +358,16 @@ def create_app():
     return app
 
 # ----------------------------------------------------------------------------
-# Entry point
+# Entry point For local development
 # ----------------------------------------------------------------------------
-if __name__ == '__main__':
-    application = create_app()
-    application.run(
-        host='0.0.0.0',
-        port=int(os.getenv('PORT', 5000)),
-        debug=not CI_CD_MODE
-    )
+# if __name__ == '__main__':
+#     application = create_app()
+#     application.run(
+#         host='0.0.0.0',
+#         port=int(os.getenv('PORT', 5000)),
+#         debug=not CI_CD_MODE
+#     )
 
-# For Gunicorn entrypoint
+# For Gunicorn entrypoint (for production)
 app = create_app()
+
