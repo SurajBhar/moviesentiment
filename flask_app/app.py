@@ -33,7 +33,7 @@ from mlflow.exceptions import MlflowException
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-from src.logger import get_logger
+from logger import get_logger
 import warnings
 warnings.simplefilter("ignore", UserWarning)
 warnings.filterwarnings("ignore")
