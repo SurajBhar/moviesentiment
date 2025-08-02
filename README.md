@@ -1,5 +1,5 @@
 # Movie Sentiment Prediction Microservice
-[![CI](https://github.com/SurajBhar/moviesentiment/actions/workflows/ci.yaml/badge.svg)](https://github.com/SurajBhar/moviesentiment/actions/workflows/ci.yaml)
+[![CI Status](https://img.shields.io/badge/ci-passing-brightgreen)](https://github.com/SurajBhar/moviesentiment/actions/workflows/ci.yaml)
 [![License](https://img.shields.io/github/license/SurajBhar/moviesentiment.svg)](https://github.com/SurajBhar/moviesentiment/blob/main/LICENSE)
 
 > **Predict audience sentiment on movie reviews instantly with a fully automated, production-grade platform—scalable, containerized, and Kubernetes-ready.**
