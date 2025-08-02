@@ -1,96 +1,56 @@
-# Sentiment Analysis Microservice
+# Movie Sentiment Prediction Microservice
+[![CI](https://github.com/SurajBhar/moviesentiment/actions/workflows/ci.yaml/badge.svg)](https://github.com/SurajBhar/moviesentiment/actions/workflows/ci.yaml)
+[![License](https://img.shields.io/github/license/SurajBhar/moviesentiment.svg)](https://github.com/SurajBhar/moviesentiment/blob/main/LICENSE)
 
-A **scalable**, **containerized** web application and microservice for end-to-end movie sentiment analysis. Built for Kubernetes (Amazon EKS), it integrates data ingestion, experiment tracking, model management, CI/CD, and monitoring into a single, production-ready workflow.
+> **Predict audience sentiment on movie reviews instantly with a fully automated, production-grade platform—scalable, containerized, and Kubernetes-ready.**
 
-Built as a scalable, containerized web application and microservice for movie-sentiment analysis, this solution:
+![Movie Sentiment Prediction Microservice](images/3_app_1.png)
 
-* Ingests raw data from an AWS S3 bucket
-* Tracks experiments, registers models and serves predictions via MLflow
-* Enables remote collaboration through DagsHub and versioned datasets with DVC
-* Manages source code in Git, hosted on GitHub, with GitHub Actions automating CI/CD
-* Packages each component in Docker containers and deploys them to Amazon EKS (Kubernetes)
-* Monitors performance and health metrics using Prometheus and Grafana
+**Key Features:**
 
-Altogether, it delivers a fully production-ready, Kubernetes-orchestrated platform for continuous development, deployment and monitoring of movie-sentiment models.
-
+* **Data Ingestion**
+  Automatically pulls raw review data from an AWS S3 bucket.
+* **Experiment Tracking & Serving**
+  Leverages MLflow to log experiments, register models, and serve real-time predictions.
+* **Dataset Versioning & Collaboration**
+  Uses DVC and DagsHub to manage versioned datasets and enable team collaboration.
+* **CI/CD & Source Control**
+  Maintains code in GitHub with GitHub Actions automating testing, builds, and deployments.
+* **Containerized Deployment**
+  Packages each service in Docker and orchestrates them on Amazon EKS (Kubernetes).
+* **Monitoring & Alerting**
+  Collects performance and health metrics via Prometheus and visualizes them in Grafana.
 
 ---
 
-## Tech Stack
-
-| Layer                  | Technology                     |
-| ---------------------- | ------------------------------ |
-| Data Storage           | AWS S3                         |
-| Experiment Tracking, Model Registry & Model Serving    | MLflow                         |
-| Collaboration, Pipeline Automation & Data Versioning    | DagsHub, DVC                   |
-| Source Control         | Git, GitHub                    |
-| CI/CD                  | GitHub Actions                 |
-| Containerization       | Docker                         |
-| Container Orchestration| Amazon EKS (Kubernetes)        |
-| Monitoring & Alerts    | Prometheus, Grafana            |
+Altogether, the Movie Sentiment Prediction Microservice delivers an end-to-end workflow—from raw data to live inference—so you can develop, deploy, version, and monitor sentiment models in production with confidence.
 
 ---
 
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Features](#features)
-3. [Prerequisites](#prerequisites)
-4. [Setup & Installation](#setup--installation)
-
-   * [Conda Environment](#conda-environment)
-   * [Environment Variables](#environment-variables)
-5. [Local Development](#local-development)
-
-   * [Data Pipeline](#data-pipeline)
-   * [Model Training](#model-training)
-   * [Web App](#web-app)
-6. [Running Tests](#running-tests)
-7. [DVC Pipeline](#dvc-pipeline)
-8. [CI/CD (GitHub Actions)](#cicd-github-actions)
+2. [Prerequisites](#prerequisites)
+3. [Setup & Installation](#setup--installation)
+4. [Environment Variables](#environment-variables)
+5. [Data Pipeline](#data-pipeline)
+6. [Modeling](#modeling-future-work-extend-with-deep-learning-models)
+7. [Web Service](#web-service)
+8. [Infrastructure](#infrastructure)
 9. [Deployment on EKS](#deployment-on-eks)
 10. [Monitoring & Dashboarding](#monitoring--dashboarding)
-11. [Contributing](#contributing)
-12. [License](#license)
+11. [Tech Stack](#tech-stack)
+12. [Contributing](#contributing)
+13. [Support](#support)
+14. [License](#license)
 
 ---
 
 ## Architecture Overview
 
-```text
-+-------------+        +---------+        +--------------+
-|  Data Source| --DVC->|  DVC    | --Local->| Data Pipeline|
-+-------------+        +---------+        +--------------+
-       |                                     |
-       v                                     v
-   S3 Bucket                               Features
-       |                                     |
-       v                                     v
- +-------------+      MLflow/DagsHub      +-----------+
- | Model Code  | <------------------------| Training  |
- +-------------+                          +-----------+
-       |                                     |
-       v                                     v
-  model.pkl                             Predictions
-       |                                     |
-       v                                     v
-+--------------------+    Flask App/API      +----------+
-| Sentiment Analysis | <---------------------| Client UI|
-+--------------------+                       +----------+
-       |
-       v
- Prometheus / Grafana
-```
+![Architecture Overview](images/Architecture.png)
 
-## Features
-
-* **Data Versioning & Pipeline**: DVC stages for ingestion, preprocessing, feature engineering (BoW/TF-IDF), model training, evaluation, and registry.
-* **Experiment Tracking**: MLflow + DagsHub integration with CI/CD support.
-* **Modular Codebase**: OOP-patterned Python modules for each stage.
-* **API / Webapp**: Flask microservice exposing `/predict` and `/metrics` (Prometheus format).
-* **Monitoring & Alerts**: Custom Prometheus metrics (request count, latency, prediction distribution). Grafana dashboards.
-* **CI/CD**: GitHub Actions pipeline for repro, tests, and automated model promotion.
-* **Containerized & K8s-ready**: Dockerfiles for service, ready for Amazon EKS deployment.
+---
 
 ## Prerequisites
 
@@ -100,93 +60,84 @@ Altogether, it delivers a fully production-ready, Kubernetes-orchestrated platfo
 * **AWS CLI** (configured)
 * **kubectl** & **eksctl** (for EKS)
 
+---
+
 ## Setup & Installation
 
-### Conda Environment
+   ```bash
 
-```bash
-conda create -n sentiment-scope python=3.10 -y
-conda activate sentiment-scope
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+   #1. Clone the repository
+   git clone https://github.com/SurajBhar/moviesentiment.git
+   cd moviesentiment
 
-### Environment Variables
+   # 2. Create & activate Conda environment
+   conda create -n senti python=3.10
+   conda activate senti
 
-Create a `.env` file in project root:
+   # 3. Install dependencies
+   pip install --upgrade pip
+   pip install -r requirements.txt
 
-```ini
-# CI/CD flag
-CI_CD=false
+   # 4. Run full DVC pipeline
+   dvc repro
 
-# DagsHub / MLflow
-CAPSTONE_TEST=<your-dagshub-token>
+   # 5. Run Uni test on Model
+   python -m unittest tests/test_model.py
 
-# AWS / S3
-AWS_ACCESS_KEY_ID=<your-aws-key>
-AWS_SECRET_ACCESS_KEY=<your-aws-secret>
-AWS_REGION=us-east-1
-S3_BUCKET_NAME=<your-bucket>
-```
+   # 6. Promote model to Production
+   python scripts/promote_model.py --ci-cd
 
-Load with:
+   # 7. Run Flask app tests & Run flask app locally
+   python -m unittest tests/test_flask_app.py
+   python flask_app/app.py
 
-```bash
-source .env
-```
+   # 6. Add Secrets to your Github actions secrets & variables
+   # Copy the secrets from the .env file (Add Your AWS credentials)
 
----
+   # 7. Setup your AWS account for deployment
 
-## Local Development
+   # 8. Follow the ci.yaml file for deployment
+      - Login to AWS ECR 
+      - Build Docker image 
+      - Tag Docker image 
+      - Push Docker image to ECR
+      - Create Kubernetes Secret 
+      - Deploy to EKS
 
-### Data Pipeline
+   # 9. After deployment access the app at the 5000 port with External IP
+   - You can get your external ip using following command
+   - kubectl get svc <flask-app-service-name>
+   # An example: <Your External IP>:5000
+   ae3f90f44000345e380021fff385e80f-1100359576.us-east-1.elb.amazonaws.com:5000
 
-```bash
-# Ensure S3 remote is configured in .dvc/config
-dvc pull           # fetch raw data
-dvc repro --no-update-lock   # run all stages
-```
-
-Artifacts:
-
-* `data/raw/` (ingested CSV)
-* `data/interim/` (preprocessed)
-* `data/processed/` (features)
-* `models/` (vectorizers, model.pkl)
-
-### Model Training
-
-```bash
-python src/model/model_training.py
-```
-
-* Logs to MLflow + DagsHub when `CI_CD=false`.
-
-### Web App
-
-```bash
-export FLASK_APP=flask_app/app.py
-flask run
-```
-
-* Open [http://localhost:5000](http://localhost:5000)
-* Metrics at `/metrics` for Prometheus scraping.
+   ````
 
 ---
 
-## Running Tests
+## Environment Variables
 
-```bash
-# Model tests
-pytest tests/test_model.py
+Create a `.env` file in project root to set up your secrets & variables:
 
-# Flask app tests
-pytest tests/test_flask_app.py
-```
+   ```ini
+   # CI/CD flag
+   CI_CD=false
+   # DagsHub / MLflow
+   CAPSTONE_TEST=<your-dagshub-token>
+   # AWS / S3
+   AWS_ACCESS_KEY_ID=<your-aws-key>
+   AWS_SECRET_ACCESS_KEY=<your-aws-secret>
+   AWS_REGION=us-east-1
+   S3_BUCKET_NAME=<your-bucket>
+   S3_TEST_FILE_KEY=<dataset.csv>
+   ECR_REPOSITORY=moviesentiment
+   AWS_ACCOUNT_ID=<IAMUserAccountID>
+   ```
 
 ---
 
-## DVC Pipeline
+## Data Pipeline
+
+![Data Pipeline](images/data_pipeline.png)
 
 Stages defined in `dvc.yaml`:
 
@@ -200,67 +151,125 @@ Stages defined in `dvc.yaml`:
 Run full repro:
 
 ```bash
-dvc repro --no-update-lock
+dvc repro
 ```
-
 ---
 
-## CI/CD (GitHub Actions)
+## Modeling (Future Work: Extend with Deep Learning Models)
 
-Workflow: `.github/workflows/ci.yaml`
+* **Algorithms**: Logistic Regression (configurable via `params.yaml`), extensible to Random Forest, Neural Nets, etc.
+* **Hyperparameters** stored in `params.yaml` for reproducibility.
+* **Experiment tracking**: MLflow with remote URI at `<DAGSHUB_URL>`.
 
-1. Checkout & Python setup
-2. Install deps & `dvc[s3]`
-3. `dvc pull` + `dvc repro`
-4. Run unit & integration tests
-5. Promote model to Production via `scripts/promote_model.py --ci-cd`
+## Web Service
 
----
+* Flask microservice in `flask_app/` exposing `/predict` and `/metrics`.
+* Secrets managed via `.env`, Actions secrets and variables and Kubernetes Secrets.
+
+## Infrastructure
+
+* **CI/CD**: GitHub Actions (`.github/workflows/ci.yaml`)
+
+  1. Checkout, Python setup, `pip install`
+  2. `dvc repro` → unit & integration tests → model promotion
+  3. Docker build & push to ECR
+  4. `kubectl apply` of `deployment.yaml`
+
 
 ## Deployment on EKS
-
+![Deployment on EKS](images/6_EKS_app.png)
+  * `deployment.yaml` runs 2 replicas of `moviesentiment:latest` (Microservice) on EKS
+  * LoadBalancer service on port 5000
 1. **Build & push Docker image**:
 
    ```bash
-   docker build -t myrepo/sentiment-scope:latest .
-   docker push myrepo/sentiment-scope:latest
+   docker build -t ${{ secrets.ECR_REPOSITORY }}:latest .
+   docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
    ```
 2. **Create EKS cluster** (or use existing):
 
    ```bash
-   eksctl create cluster --name sentiment-scope --region $AWS_REGION
+   eksctl create cluster --name moviesentiment-cluster \
+   --region us-east-1 --nodegroup-name moviesentiment-nodes \
+   --node-type t3.small \
+   --nodes 1 --nodes-min 1 \
+   --nodes-max 1 \
+   --managed
    ```
 3. **Apply Kubernetes manifests** (in `k8s/`):
-
+   An example:
    ```bash
    kubectl apply -f k8s/deployment.yaml
-   kubectl apply -f k8s/service.yaml
    ```
 
 ---
 
 ## Monitoring & Dashboarding
+![Prometheus Monitoring](images/0_prometheous.png)
 
-* **Prometheus** scrapes `/metrics` endpoint.
-* **Grafana** dashboards visualize:
+* **Prometheus**: Scrapes Flask metrics every 15 s via `/metrics`.
 
+![Grafana Dashboarding](images/1_grafana.png)
+* **Grafana**: Dashboards visualize throughput, latency, error rates, and sentiment distribution.
   * Request rate & latency
   * Prediction distribution
   * Resource metrics
 
-Refer to `grafana/` for dashboard JSON definitions.
+---
+
+## Tech Stack
+
+| Layer                  | Technology                     |
+| ---------------------- | ------------------------------ |
+| Data Storage           | AWS S3                         |
+| Experiment Tracking, Model Registry & Model Serving    | MLflow                         |
+| Collaboration, Pipeline Automation & Data Versioning    | DagsHub, DVC                   |
+| Source Control         | Git, GitHub                    |
+| CI/CD                  | GitHub Actions                 |
+| Containerization       | Docker                         |
+| Orchestration| Amazon EKS (Kubernetes), `eksctl`, `kubectl`       |
+| Secrets & Config               | python-dotenv, GitHub Actions Secrets, Kubernetes Secrets            |
+| Monitoring & Alerts    | Prometheus, Grafana            |
 
 ---
 
 ## Contributing
 
-1. Fork the repo
-2. Create branch: `git checkout -b feature/XYZ`
-3. Make changes & tests
-4. Push & open PR
+1. Fork the repository
+2. Create a branch: `git checkout -b feature/XYZ`
+3. Make changes & add tests
+4. Commit & push: `git push origin feature/XYZ`
+5. Open a Pull Request
+
+---
+
+## Support
+
+For questions or issues, please open an [issue](https://github.com/SurajBhar/moviesentiment/issues) or write a message to me on [Linkedin](https://www.linkedin.com/in/bhardwaj-suraj/).
+
+If you want to fully replicate this project or want to extend it don't hesitate to contact me. I will be more than happy to provide you with my settings for the deployment, monitoring and dashboarding.
 
 ---
 
 ## License
+MIT License
 
-MIT © BHAR-AI Lab
+Copyright (c) 2025 Suraj Bhardwaj
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
